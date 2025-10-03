@@ -47,8 +47,8 @@ function draw() {
   if (gameState === "milkyway") {
     background(0);
     translate(width / 2, height / 2);
-    // slo-mo effect when mouse pressed
-    if (mouseIsPressed === true) {
+    // slo-mo effect when space is pressed
+    if (keyIsDown(32)) {
       frameRate(10);
     } 
     else {
@@ -61,6 +61,7 @@ function draw() {
       planet.orbit();
       planet.show();
     }
+  
   }
   // Shows the milkyway image and background stars
   if (gameState === "universe") {
