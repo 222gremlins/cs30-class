@@ -21,12 +21,17 @@ function draw() {
   background(220);
   if (gameState === "begin") {
     startScreen();
+  } // the game..
+  if (gameState === "theGame") {
+    
   }
 }
 
 // The start screen that appears first
 function startScreen() {
   background("darkblue");
+
+
   showButton();
   
   
@@ -38,6 +43,20 @@ function showButton() {
   let w = 200;
   let h = 100;
   rect(rectX, rectY, w, h);
+}
+
+
+
+//When you press the start button, it brings you to the game.
+function mousePressed() {
+  if (gameState === "start") {
+    if (mouseX >= rectX && 
+        mouseX <= rectX + w &&
+        mouseY >= rectY && 
+        mouseY <= rectY + h) {
+      gameState = "ball";
+    }
+  }
 }
 
 // function spawnCards() {
