@@ -26,11 +26,17 @@ function draw() {
 
 // The start screen that appears first
 function startScreen() {
-  let rectX = 100;
-  let rectY = 150;
+  background("darkblue");
+  showButton();
+  
+  
+}
+
+function showButton() {
+  let rectX = windowWidth/2;
+  let rectY = windowHeight/2;
   let w = 200;
   let h = 100;
-  background("darkblue");
   rect(rectX, rectY, w, h);
 }
 
