@@ -10,8 +10,24 @@
 
 let theMessages = [];
 let theCards = [];
+let finishedSet = [];
 let theBoard = [];
 let gameState = "begin";
+
+function preload() {
+  img1 = loadImage("pikachu.png");
+  img2 = loadImage("mew.png");
+  img3 = loadImage("voltorb.png");
+  img4 = loadImage("zapdos.png");
+  img5 = loadImage("eevee.png");
+  img6 = loadImage("meowth.png");
+  img7 = loadImage("gengar.png");
+  img8 = loadImage("diglet.png");
+  img9 = loadImage("charizard.png");
+  img10 = loadImage("alakazam.png");
+
+  img11 = loadImage("cardback.png");
+}
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -21,9 +37,8 @@ function setup() {
 function draw() {
   background(220);
   if (gameState === "begin") {
-    confetti();
     startScreen();
-  } // the game..
+  } 
   if (gameState === "theGame") {
     loadBackground();
     shuffleCards();
@@ -35,13 +50,12 @@ function draw() {
 //'Confetti' in the background of start screen
 function confetti() {
   
+  
 }
 
 // The start screen that appears first
 function startScreen() {
   background("darkblue");
-
-
 
   showButton();
   
@@ -62,8 +76,6 @@ function anyText() {
   let _buffer = random(1000);
 
   let message = {
-    time: _time,
-    buffer: _buffer,
     x: noise(_time) * width,
     y: noise(_time + _buffer) * height,
     diameter: random(20, 50),
