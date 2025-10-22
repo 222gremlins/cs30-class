@@ -8,13 +8,17 @@
 
 //memory card game in progress huzzah.
 
-let theMessages = [];
 let theCards = [];
 let finishedSet = [];
 let theBoard = [];
-let gameState = "begin";
+let gameState = "menu";
+let cardAmount = 10;
 
 function preload() {
+  // for (let i = 1; i <= cardAmount; i++) {
+  //   let theCards = loadImage(assets/);
+  //   theCards.push(image);
+  // }
   img1 = loadImage("pikachu.png");
   img2 = loadImage("mew.png");
   img3 = loadImage("voltorb.png");
@@ -36,7 +40,7 @@ function setup() {
 
 function draw() {
   background(220);
-  if (gameState === "begin") {
+  if (gameState === "menu") {
     startScreen();
   } 
   if (gameState === "theGame") {
@@ -63,11 +67,11 @@ function startScreen() {
 }
 
 function showButton() {
-  let rectX = windowWidth/2;
-  let rectY = windowHeight/2;
+  let buttonX = windowWidth/2;
+  let buttonY = windowHeight/2;
   let w = 200;
   let h = 100;
-  rect(rectX, rectY, w, h);
+  rect(buttonX, buttonY, w, h);
 
 }
 
@@ -92,10 +96,10 @@ function mousePressed() {
 
 
   if (gameState === "start") {
-    if (mouseX >= rectX && 
-        mouseX <= rectX + w &&
-        mouseY >= rectY && 
-        mouseY <= rectY + h) {
+    if (mouseX >= buttonX && 
+        mouseX <= buttonX + buttonW &&
+        mouseY >= buttonY && 
+        mouseY <= buttonY + buttonH) {
       gameState = "theGame";
     }
   }
@@ -114,6 +118,7 @@ function shuffleCards() {
 
 //   };
 // }
+
 
 //gamestate begin - screen with a button to start playing, occurs at beginning; will also occur when user restarts by pressing a key
 //gamestate playing - screen with the cards, timer in the corner?
