@@ -19,18 +19,17 @@ function preload() {
   //   let theCards = loadImage(assets/);
   //   theCards.push(image);
   // }
-  img1 = loadImage("pikachu.png");
-  img2 = loadImage("mew.png");
-  img3 = loadImage("voltorb.png");
-  img4 = loadImage("zapdos.png");
-  img5 = loadImage("eevee.png");
-  img6 = loadImage("meowth.png");
-  img7 = loadImage("gengar.png");
-  img8 = loadImage("diglet.png");
-  img9 = loadImage("charizard.png");
-  img10 = loadImage("alakazam.png");
+  img1 = loadImage("assets/pikachu.png");
+  img2 = loadImage("assets/mew.png");
+  img3 = loadImage("assets/voltorb.png");
+  img4 = loadImage("assets/eevee.png");
+  img5 = loadImage("assets/gengar.png");
+  img6 = loadImage("assets/meowth.png");
+  img7 = loadImage("assets/diglet.png");
+  img8 = loadImage("assets/charizard.png");
 
-  img11 = loadImage("cardback.png");
+
+  img11 = loadImage("assets/cardback.png");
 }
 
 function setup() {
@@ -47,6 +46,7 @@ function draw() {
     loadBackground();
     shuffleCards();
     spawnCards(); // this or I push the cards up to a board?
+
     
   }
 }
@@ -60,7 +60,6 @@ function confetti() {
 // The start screen that appears first
 function startScreen() {
   background("darkblue");
-
   showButton();
   
   
@@ -75,21 +74,21 @@ function showButton() {
 
 }
 
-function anyText() {
-  let _time = random(1000);
-  let _buffer = random(1000);
+// function anyText() {
+//   let _time = random(1000);
+//   let _buffer = random(1000);
 
-  let message = {
-    x: noise(_time) * width,
-    y: noise(_time + _buffer) * height,
-    diameter: random(20, 50),
-    deltaTime: 0.01,
-    r: random(255),
-    g: random(255),
-    b: random(255),
-  };
-  theMessages.push(message);
-}
+//   let message = {
+//     x: noise(_time) * width,
+//     y: noise(_time + _buffer) * height,
+//     diameter: random(20, 50),
+//     deltaTime: 0.01,
+//     r: random(255),
+//     g: random(255),
+//     b: random(255),
+//   };
+//   theMessages.push(message);
+// }
 
 //When you press the start button, it brings you to the game.
 function mousePressed() {
@@ -105,19 +104,37 @@ function mousePressed() {
   }
 }
 
+
+
 function shuffleCards() {
   
 };
 
-// function spawnCards() {
-//   let theCard = {
-//     x: ,
-//     y: ,
-//     img: ,
-//     cardType: ,
+function spawnCards() {
+  let theCard = {
+    x: ,
+    y: ,
+    img: ,
+    cardType: ,
 
-//   };
-// }
+  };
+}
+
+
+  for (let i = 0; i < colNum; i++) {
+    for (let j = 0; j < rowNum; j++) {
+      var cardX = 190 + i * 70;
+      var cardY = j * 70 + 90;
+      // cards.push(new Card(cardX, cardY,50,50));
+
+      var cardFace = selected.pop();
+      card = new Card(cardX, cardY, 50, 50, cardFace);
+      cards.push(card);
+    }
+  }
+
+
+// CRASHES WHEN YOU PRESS SPACE! (flip voltorb card and explode the screen)
 
 
 //gamestate begin - screen with a button to start playing, occurs at beginning; will also occur when user restarts by pressing a key
