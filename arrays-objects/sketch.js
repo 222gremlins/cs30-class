@@ -3,6 +3,7 @@
 // 10/26/2025
 //
 // Extra for Experts:
+// added background music(hopefully) and a few logic things but they dont reallllyyy count
 // fisher yates algorithm to shuffle cards: https://www.tutorialspoint.com/data_structures_algorithms/dsa_fisher_yates_shuffle_algorithm.htm & some help from ai
 
 
@@ -20,6 +21,7 @@ let allowedFlip = true;
 let gameState = "menu";
 let flipTimer = 0;
 let FLIP_DELAY = 1000; 
+let backgroundMusic;
 
 
 function preload() {
@@ -29,6 +31,8 @@ function preload() {
   }
   // unflipped card image
   cardBack = loadImage("assets/cardback.png");
+  // the background music
+  backgroundMusic = loadSound("assets/pokemongamemusic.mp3");
 }
 
 function setup() {
@@ -42,13 +46,15 @@ function windowResized() {
   arrangeBoard(); // re-arranges the board when window is resized
 }
 
+// draw loop that is nice and clean :D
 function draw() {
   if (gameState === "menu") {
     startScreen();
-  } else if (gameState === "theGame") {
+  } 
+  else if (gameState === "theGame") {
     displayCards();
     checkFlipTime();
-    checkForWin()
+    checkForWin();
   }
 }
 
@@ -65,7 +71,8 @@ function createConfetti() {
   }
 }
 
- function spawnConfetti() {
+// spawning the confetti
+function spawnConfetti() {
   background("darkblue");
   for (let c of confetti) {
     fill(c.color);
@@ -79,7 +86,7 @@ function createConfetti() {
   }
 }
 
-// The start screen that appears first
+// the start screen that appears first
 function startScreen() {
   background("darkblue");
   showButton();
@@ -117,7 +124,9 @@ function mousePressed() {
     return;
   }
 
-  if (!allowedFlip) return;
+  if (!allowedFlip) {
+    return;
+  }
 
   for (let card of cards) {
   //   // if two cards are flipped, they cant flip other cards
@@ -138,7 +147,6 @@ function mousePressed() {
 
 function checkFlipTime() {
   if (flipTimer > 0 && millis() - flipTimer > FLIP_DELAY) {
-    // Safely flip back all cards in flipped array
     for (let c of flipped) {
       c.flipped = false;
     }
@@ -149,12 +157,10 @@ function checkFlipTime() {
 }
 
 function isHovering(card) {
-  return (
-    mouseX > card.x - card.w/2 &&
-    mouseX < card.x + card.w/2 &&
-    mouseY > card.y - card.h/2 &&
-    mouseY < card.y + card.h/2
-  );
+  return  mouseX > card.x - card.w/2 &&
+          mouseX < card.x + card.w/2 &&
+          mouseY > card.y - card.h/2 &&
+          mouseY < card.y + card.h/2;
 }
 
 function checkForMatch() {
@@ -168,8 +174,9 @@ function checkForMatch() {
     second.matched = true;
     flipped = [];       // reset the list of flipped cards
     allowedFlip = true;     // allow player to flip cards 
-  } else {
-    // if they don't match, flip them back after a short delay
+  } 
+  else {
+    // if they don't match this flips them back after the delay
     flipTimer = millis();
     allowedFlip = false;
   }
@@ -197,9 +204,7 @@ function spawnCards() {
       index++;
     }
   }
-  arrangeBoard(); // re-arranges the board when window is resized
-  
-
+  arrangeBoard(); // re-arranges the board when window is resized (i think..)
 }
 
 function arrangeBoard() {
@@ -229,9 +234,10 @@ function displayCards() {
   for (let card of cards) {
     imageMode(CENTER);
     if (card.flipped || card.matched) {
-      image(card.face, card.x, card.y, card.w, card.h);
-    } else {
-      image(cardBack, card.x, card.y, card.w, card.h);
+      image(card.face, card.x, card.y, card.w, card.h); // the pokemon/unflipped cards
+    } 
+    else {
+      image(cardBack, card.x, card.y, card.w, card.h); // the flipped cards
     }
   }
 }
@@ -250,18 +256,21 @@ function checkForWin() {
 
   if (allMatched) {
     spawnConfetti();
-    // Display a winning message
+    // display the winning messages
     textAlign(CENTER, CENTER);
-    textSize(48);
+    textSize(50);
     fill("yellow");
-    text("YOU WIN!", width / 2, height / 2);
+    text("HUZZAH!!", width / 2, height / 2);
 
     // take away their flipping rights....
     allowedFlip = false;
   }
 }
 
-// CRASHES WHEN YOU PRESS SPACE! (flip voltorb card and explode the screen)
+// CRASHES WHEN YOU PRESS SPACE! (flip voltorb card and explode the screen) ... i ran out of time for this but the dream was there.
 
 
-
+  //plays music on first click
+  if (!jazzMusic.isPlaying()){
+    jazzMusic.loop();
+  }
