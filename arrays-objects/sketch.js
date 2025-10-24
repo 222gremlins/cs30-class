@@ -3,139 +3,265 @@
 // 10/26/2025
 //
 // Extra for Experts:
-// - 
+// fisher yates algorithm to shuffle cards: https://www.tutorialspoint.com/data_structures_algorithms/dsa_fisher_yates_shuffle_algorithm.htm & some help from ai
 
 
 //memory card game in progress huzzah.
 
-let theCards = [];
-let finishedSet = [];
-let theBoard = [];
+let cards = [];
+let flipped = [];
+let imgs = [];
+let cardBack;
+let boardDown = 4;
+let boardAcross = 4;
+let cardAmount = 8;
+let confetti = [];
+let allowedFlip = true; 
 let gameState = "menu";
-let cardAmount = 10;
+let flipTimer = 0;
+let FLIP_DELAY = 1000; 
+
 
 function preload() {
-  // for (let i = 1; i <= cardAmount; i++) {
-  //   let theCards = loadImage(assets/);
-  //   theCards.push(image);
-  // }
-  img1 = loadImage("assets/pikachu.png");
-  img2 = loadImage("assets/mew.png");
-  img3 = loadImage("assets/voltorb.png");
-  img4 = loadImage("assets/eevee.png");
-  img5 = loadImage("assets/gengar.png");
-  img6 = loadImage("assets/meowth.png");
-  img7 = loadImage("assets/diglet.png");
-  img8 = loadImage("assets/charizard.png");
-
-
-  img11 = loadImage("assets/cardback.png");
+  // flipped pokemon images for cards
+  for (let i = 1; i <= cardAmount; i++) {
+    imgs.push(loadImage(`assets/pokemon-0${i}.png`)); // turns out you cant use "" while using ${i} so rip and this took me forever to find it you need backticks ``
+  }
+  // unflipped card image
+  cardBack = loadImage("assets/cardback.png");
 }
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
+  spawnCards();
+  createConfetti();
+}
 
+function windowResized() {
+  resizeCanvas(windowWidth, windowHeight);
+  arrangeBoard(); // re-arranges the board when window is resized
 }
 
 function draw() {
-  background(220);
   if (gameState === "menu") {
     startScreen();
-  } 
-  if (gameState === "theGame") {
-    loadBackground();
-    shuffleCards();
-    spawnCards(); // this or I push the cards up to a board?
-
-    
+  } else if (gameState === "theGame") {
+    displayCards();
+    checkFlipTime();
+    checkForWin()
   }
 }
 
-//'Confetti' in the background of start screen
-function confetti() {
-  
-  
+// making confetti
+function createConfetti() {
+  for (let i = 0; i < 80; i++) {
+    confetti.push({
+      x: random(width),
+      y: random(-height, 0),
+      size: random(5, 10),
+      color: color(random(255), random(255), random(255)),
+      speed: random(1, 8)
+    });
+  }
+}
+
+ function spawnConfetti() {
+  background("darkblue");
+  for (let c of confetti) {
+    fill(c.color);
+    noStroke();
+    ellipse(c.x, c.y, c.size);
+    c.y += c.speed;
+    if (c.y > height) {
+      c.y = random(-50, 0);
+      c.x = random(width);
+    }
+  }
 }
 
 // The start screen that appears first
 function startScreen() {
   background("darkblue");
   showButton();
-  
-  
+
 }
 
 function showButton() {
-  let buttonX = windowWidth/2;
-  let buttonY = windowHeight/2;
+  let buttonX = width / 2;
+  let buttonY = height / 2;
   let w = 200;
   let h = 100;
-  rect(buttonX, buttonY, w, h);
-
+  rectMode(CENTER);
+  fill("red");
+  rect(buttonX, buttonY, w, h, 10);
+  fill(0);
+  textAlign(CENTER, CENTER);
+  textSize(24);
+  text("Start Game", buttonX, buttonY);
 }
 
-// function anyText() {
-//   let _time = random(1000);
-//   let _buffer = random(1000);
-
-//   let message = {
-//     x: noise(_time) * width,
-//     y: noise(_time + _buffer) * height,
-//     diameter: random(20, 50),
-//     deltaTime: 0.01,
-//     r: random(255),
-//     g: random(255),
-//     b: random(255),
-//   };
-//   theMessages.push(message);
-// }
-
-//When you press the start button, it brings you to the game.
 function mousePressed() {
-
-
-  if (gameState === "start") {
-    if (mouseX >= buttonX && 
-        mouseX <= buttonX + buttonW &&
-        mouseY >= buttonY && 
-        mouseY <= buttonY + buttonH) {
+  if (gameState === "menu") {
+    let buttonX = width / 2;
+    let buttonY = height / 2;
+    let w = 200;
+    let h = 100;
+    if (
+      mouseX > buttonX - w/2 &&
+      mouseX < buttonX + w/2 &&
+      mouseY > buttonY - h/2 &&
+      mouseY < buttonY + h/2
+    ) {
       gameState = "theGame";
     }
+    return;
   }
-}
+
+  if (!allowedFlip) return;
+
+  for (let card of cards) {
+  //   // if two cards are flipped, they cant flip other cards
+    if (!card.flipped && !card.matched && isHovering(card)) {
+      card.flipped = true;
+      flipped.push(card);
 
 
+      if (flipped.length === 2) {
+        allowedFlip = false;
+        checkForMatch();
+      }
 
-function shuffleCards() {
-  
-};
-
-function spawnCards() {
-  let theCard = {
-    x: ,
-    y: ,
-    img: ,
-    cardType: ,
-
-  };
-}
-
-
-  for (let i = 0; i < colNum; i++) {
-    for (let j = 0; j < rowNum; j++) {
-      var cardX = 190 + i * 70;
-      var cardY = j * 70 + 90;
-      // cards.push(new Card(cardX, cardY,50,50));
-
-      var cardFace = selected.pop();
-      card = new Card(cardX, cardY, 50, 50, cardFace);
-      cards.push(card);
+      break; // exit loop after flipping one card (sorry i didnt know how to do this any other way...)
     }
   }
+}
 
+function checkFlipTime() {
+  if (flipTimer > 0 && millis() - flipTimer > FLIP_DELAY) {
+    // Safely flip back all cards in flipped array
+    for (let c of flipped) {
+      c.flipped = false;
+    }
+    flipped = [];
+    flipTimer = 0;
+    allowedFlip = true;
+  }
+}
+
+function isHovering(card) {
+  return (
+    mouseX > card.x - card.w/2 &&
+    mouseX < card.x + card.w/2 &&
+    mouseY > card.y - card.h/2 &&
+    mouseY < card.y + card.h/2
+  );
+}
+
+function checkForMatch() {
+  // get the two flipped cards
+  let first = flipped[0];
+  let second = flipped[1];
+
+  // if they match, keep them face up
+  if (first.face === second.face) {
+    first.matched = true;
+    second.matched = true;
+    flipped = [];       // reset the list of flipped cards
+    allowedFlip = true;     // allow player to flip cards 
+  } else {
+    // if they don't match, flip them back after a short delay
+    flipTimer = millis();
+    allowedFlip = false;
+  }
+}
+
+function spawnCards() {
+  // Shuffle the cards before spawning/displaying
+  let pokemonCards = imgs.concat(imgs); // basically duplicates the images to make the pairs
+  shuffleCards(pokemonCards);
+
+  // create the card object array thingy
+  let index = 0;
+  for (let i = 0; i < boardDown; i++) {
+    for (let j = 0; j < boardAcross; j++) {
+      let card = {
+        face: pokemonCards[index],
+        x: 0,
+        y: 0,
+        w: 0,
+        h: 0,
+        flipped: false,
+        matched: false,
+      };
+      cards.push(card);
+      index++;
+    }
+  }
+  arrangeBoard(); // re-arranges the board when window is resized
+  
+
+}
+
+function arrangeBoard() {
+  let boardWidth = width * 0.8;
+  let boardHeight = height * 0.8;
+
+  let cardW = min(boardWidth / boardAcross, boardHeight / boardDown) * 0.9;
+  let cardH = cardW * 1.4;
+
+  let startX = (width - cardW * boardAcross) / 2 + cardW / 2;
+  let startY = (height - cardH * boardDown) / 2 + cardH / 2;
+
+  let index = 0;
+  for (let i = 0; i < boardAcross; i++) {
+    for (let j = 0; j < boardDown; j++) {
+      let card = cards[index];
+      card.x = startX + i * cardW;
+      card.y = startY + j * cardH;
+      card.w = cardW;
+      card.h = cardH;
+      index++;
+    }
+  }
+}
+
+function displayCards() {
+  for (let card of cards) {
+    imageMode(CENTER);
+    if (card.flipped || card.matched) {
+      image(card.face, card.x, card.y, card.w, card.h);
+    } else {
+      image(cardBack, card.x, card.y, card.w, card.h);
+    }
+  }
+}
+
+// Shuffle the cards using Fisher-Yates algorithm !
+function shuffleCards(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = floor(random(i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
+function checkForWin() {
+  // checks if every card is matched
+  let allMatched = cards.every(card => card.matched);
+
+  if (allMatched) {
+    spawnConfetti();
+    // Display a winning message
+    textAlign(CENTER, CENTER);
+    textSize(48);
+    fill("yellow");
+    text("YOU WIN!", width / 2, height / 2);
+
+    // take away their flipping rights....
+    allowedFlip = false;
+  }
+}
 
 // CRASHES WHEN YOU PRESS SPACE! (flip voltorb card and explode the screen)
 
 
-//gamestate begin - screen with a button to start playing, occurs at beginning; will also occur when user restarts by pressing a key
-//gamestate playing - screen with the cards, timer in the corner?
+
