@@ -32,6 +32,7 @@ function preload() {
   for (let i = 1; i <= cardAmount; i++) {
     imgs.push(loadImage(`assets/pokemon-0${i}.png`)); // turns out you cant use "" while using ${i} so rip and this took me forever to find it you need backticks ``
   }
+  
   // unflipped card image
   cardBack = loadImage("assets/cardback.png");
   // the background music
