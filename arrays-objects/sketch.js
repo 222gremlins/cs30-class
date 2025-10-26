@@ -9,20 +9,23 @@
 
 //memory card game in progress huzzah.
 
+// arrays to hold cards, flipped cards, images, and confetti
 let cards = [];
 let flipped = [];
 let imgs = [];
+let confetti = [];
+
+// setting up variables for the game
 let cardBack;
 let boardDown = 4;
 let boardAcross = 4;
 let cardAmount = 8;
-let confetti = [];
 let allowedFlip = true; 
 let gameState = "menu";
 let flipTimer = 0;
-let FLIP_DELAY = 1000; 
 let backgroundMusic;
 
+const FLIP_DELAY = 1000; 
 
 function preload() {
   // flipped pokemon images for cards
@@ -93,6 +96,7 @@ function startScreen() {
 
 }
 
+// the start button
 function showButton() {
   let buttonX = width / 2;
   let buttonY = height / 2;
@@ -107,6 +111,7 @@ function showButton() {
   text("Start Game", buttonX, buttonY);
 }
 
+// handling mouse presses for flipping cards and starting the game
 function mousePressed() {
   if (gameState === "menu") {
     let buttonX = width / 2;
@@ -143,8 +148,13 @@ function mousePressed() {
       break; // exit loop after flipping one card (sorry i didnt know how to do this any other way...)
     }
   }
+  // play background music
+    if (!backgroundMusic.isPlaying()){
+      backgroundMusic.loop();
+  }
 }
 
+// checks if its time to flip back the cards
 function checkFlipTime() {
   if (flipTimer > 0 && millis() - flipTimer > FLIP_DELAY) {
     for (let c of flipped) {
@@ -156,6 +166,7 @@ function checkFlipTime() {
   }
 }
 
+// checks if the mouse is hovering over a card
 function isHovering(card) {
   return  mouseX > card.x - card.w/2 &&
           mouseX < card.x + card.w/2 &&
@@ -163,6 +174,7 @@ function isHovering(card) {
           mouseY < card.y + card.h/2;
 }
 
+// checks if the two flipped cards match
 function checkForMatch() {
   // get the two flipped cards
   let first = flipped[0];
@@ -182,6 +194,7 @@ function checkForMatch() {
   }
 }
 
+// spawning the cards on the board
 function spawnCards() {
   // Shuffle the cards before spawning/displaying
   let pokemonCards = imgs.concat(imgs); // basically duplicates the images to make the pairs
@@ -207,6 +220,7 @@ function spawnCards() {
   arrangeBoard(); // re-arranges the board when window is resized (i think..)
 }
 
+// arranging the board of cards
 function arrangeBoard() {
   let boardWidth = width * 0.8;
   let boardHeight = height * 0.8;
@@ -230,6 +244,7 @@ function arrangeBoard() {
   }
 }
 
+// displaying the cards on the board
 function displayCards() {
   for (let card of cards) {
     imageMode(CENTER);
@@ -269,8 +284,3 @@ function checkForWin() {
 
 // CRASHES WHEN YOU PRESS SPACE! (flip voltorb card and explode the screen) ... i ran out of time for this but the dream was there.
 
-
-  //plays music on first click
-  if (!jazzMusic.isPlaying()){
-    jazzMusic.loop();
-  }
