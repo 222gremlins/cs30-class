@@ -5,21 +5,38 @@
 // Extra for Experts:
 // - 
 
-const CELL_SIZE = 20;
-const GRASS = 1;
+const CELL_SIZE = 100;
+const OPEN_TILE = 0;
+const IMPASSIBLE = 1;
+const PLAYER = 9;
 let grid;
 let rows;
 let cols;
+let thePlayer = {
+  x: 0,
+  y: 0,
+};
+let grassImg;
+let rockImg;
+
+function preload() {
+  grassImg = loadImage("clover.png");
+  rockImg = loadImage("rock.png");
+}
+
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  cols = Math.floor(width/CELL_SIZE);
+  cols = Math.floor(width/2/CELL_SIZE);
   rows = Math.floor(height/CELL_SIZE);
   grid = generateRandomGrid(cols, rows);
+
+  //add player to grid
+  grid[thePlayer.y][thePlayer.x] = PLAYER;
 }
 
 function draw() {
-  background(220);
+  background("gray");
   displayGrid();
 }
 
@@ -34,70 +51,71 @@ function mousePressed() {
 function toggleCell(x, y) {
   //make sure the cell you're toggling actually exists!
   if (x >= 0 && x < cols && y >= 0 && y < rows) {
-    if (grid[y][x] === 0) {
-      grid[y][x] = 1;
+    if (grid[y][x] === OPEN_TILE) {
+      grid[y][x] = IMPASSIBLE;
     }
-    else if (grid[y][x] === 1) {
-      grid[y][x] = 0;
+    else if (grid[y][x] === IMPASSIBLE) {
+      grid[y][x] = OPEN_TILE;
     }
   }
 }
 
-function updateGrid() {
-  let nextTurn = generateEmptyGrid(cols, rows);
-
-  //look at every cell
-  for (let y = 0; y < rows; y++) {
-    for (let x = 0; x < cols; x++) {
-      let neighbours = 0;
-
-      for (let i = -1; i <= 1; i++) {
-        for (let j = -1; j <= 1; j++) {
-          //don't fall off edge of grid
-          if (x+j >= 0 && x+j < cols && y+i >= 0 && y+i < rows) {
-            neighbours += grid[y+i][x+j];
-          }
-        }
-      }
-
-      //don't count self as neighbour
-      neighbours -= grid[y][x];
-
-      //apply the rules
-      if (grid[y][x] === 1) {
-        //currently grass
-        if (neighbours === 2 || neighbours === 3) {
-          nextTurn[y][x] = 1;
-        }
-        else {
-          nextTurn[y][x] = 0;
-        }
-      }
-
-      if (grid[y][x] === 0) {
-        //currently 
-        if (neighbours === 3) {
-          nextTurn[y][x] = 1;
-        }
-        else {
-          nextTurn[y][x] = 0;
-        }
-      }
-    }
+function keyPressed() {
+  if (key === "r") {
+    grid = generateRandomGrid(cols, rows);
+    grid[thePlayer.y][thePlayer.x] = PLAYER;
   }
-  return nextTurn;
+  else if (key === "e") {
+    grid = generateEmptyGrid(cols, rows);
+    grid[thePlayer.y][thePlayer.x] = PLAYER;
+  }
+  else if (key === "w") {
+    movePlayer(thePlayer.x, thePlayer.y - 1);
+  }
+  else if (key === "s") {
+    movePlayer(thePlayer.x, thePlayer.y + 1);
+  }
+  else if (key === "d") {
+    movePlayer(thePlayer.x + 1, thePlayer.y);
+  }
+  else if (key === "a") {
+    movePlayer(thePlayer.x - 1, thePlayer.y);
+  }
+}
+
+function movePlayer(x, y) {
+  if (x >= 0 && x < cols && y >= 0 && y < rows && grid[y][x] === OPEN_TILE) {
+    //previous position
+    let oldX = thePlayer.x;
+    let oldY = thePlayer.y;
+  
+    //moving the player location
+    thePlayer.x = x;
+    thePlayer.y = y;
+  
+    //put player on grid
+    grid[thePlayer.y][thePlayer.x] = PLAYER;
+  
+    //reset old spot to be open tile
+    grid[oldY][oldX] = OPEN_TILE;
+  }
 }
 
 function displayGrid() {
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
-      if (grid[y][x] === 0) {
-        fill("green");
+      if (grid[y][x] === OPEN_TILE) {
+        // fill("white");
+        image(grassImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
       }
-      else if (grid[y][x] === 1) {
-        fill(5);
+      else if (grid[y][x] === IMPASSIBLE) {
+        // fill("black");
+        image(rockImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
       }
-      square(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
+      else if (grid[y][x] === PLAYER) {
+        fill("red");
+        square(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
+      }
     }
   }
 }
@@ -109,10 +127,10 @@ function generateRandomGrid(cols, rows) {
     for (let x = 0; x < cols; x++) {
       //pick 0 or 1 randomly
       if (random(100) < 50) {
-        newGrid[y].push(0);
+        newGrid[y].push(OPEN_TILE);
       }
       else {
-        newGrid[y].push(1);
+        newGrid[y].push(IMPASSIBLE);
       }
     }
   }
@@ -124,7 +142,7 @@ function generateEmptyGrid(cols, rows) {
   for (let y = 0; y < rows; y++) {
     newGrid.push([]);
     for (let x = 0; x < cols; x++) {
-      newGrid[y].push(0);
+      newGrid[y].push(OPEN_TILE);
     }
   }
   return newGrid;
