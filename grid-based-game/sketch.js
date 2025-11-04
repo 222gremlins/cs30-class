@@ -18,19 +18,21 @@ let thePlayer = {
 };
 let grassImg;
 let rockImg;
+let spriteImg;
 
 function preload() {
   grassImg = loadImage("clover.png");
   rockImg = loadImage("rock.png");
+  spriteImg = loadImage("sprite.png");
 }
 
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  cols = Math.floor(width/2/CELL_SIZE);
+  cols = Math.floor(width/1.5/CELL_SIZE);
   rows = Math.floor(height/CELL_SIZE);
   grid = generateRandomGrid(cols, rows);
-
+  spawnMenu();
   //add player to grid
   grid[thePlayer.y][thePlayer.x] = PLAYER;
 }
@@ -38,7 +40,19 @@ function setup() {
 function draw() {
   background("gray");
   displayGrid();
+  spawnMenu();
 }
+
+// for now this will hold all of the things I want to eventually be able to drop in.
+function spawnMenu() {
+  textSize(50);
+  fill(255);
+  stroke(0);
+  strokeWeight(4);
+  text('MENU', width - width*0.22, 75); // reminder for me to eventually make const for values
+}
+
+
 
 function mousePressed() {
   let x = Math.floor(mouseX/CELL_SIZE);
@@ -113,8 +127,10 @@ function displayGrid() {
         image(rockImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
       }
       else if (grid[y][x] === PLAYER) {
-        fill("red");
-        square(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
+        image(grassImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
+        // fill("red");
+        // noStroke();
+        image(spriteImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
       }
     }
   }

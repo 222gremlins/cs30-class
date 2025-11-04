@@ -135,7 +135,7 @@ function mousePressed() {
   }
 
   for (let card of cards) {
-  //   // if two cards are flipped, they cant flip other cards
+   // if two cards are flipped, they cant flip other cards
     if (!card.flipped && !card.matched && isHovering(card)) {
       card.flipped = true;
       flipped.push(card);
