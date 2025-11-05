@@ -6,9 +6,17 @@
 // - 
 
 const CELL_SIZE = 100;
+const FONT_SIZE = 75;
 const OPEN_TILE = 0;
 const IMPASSIBLE = 1;
-const PLAYER = 9;
+const POTION = 2;
+// const notsureyet = 3;
+const CARROT = 4;
+const TOY = 5;
+const WATER = 6;
+const MEAT = 7;
+const SPRITE = 9;
+
 let grid;
 let rows;
 let cols;
@@ -16,14 +24,40 @@ let thePlayer = {
   x: 0,
   y: 0,
 };
+let spriteSize = 0.4;
+
+// imgs
 let grassImg;
 let rockImg;
 let spriteImg;
+let meatImg;
+let waterImg;
+let toyImg;
+let carrotImg;
+
+// sounds
+let backgroundMusic;
+let splashingSound;
+let quackSound;
+
+// drag & drop variables
+let button = false;
+let w = 100;
+let h = 75;
 
 function preload() {
-  grassImg = loadImage("clover.png");
-  rockImg = loadImage("rock.png");
-  spriteImg = loadImage("sprite.png");
+  grassImg = loadImage("assets/clover.png");
+  rockImg = loadImage("assets/rock.png");
+  spriteImg = loadImage("assets/sprite.png");
+  meatImg = loadImage("assets/ribeye.png");
+  waterImg = loadImage("assets/water.png");
+  toyImg = loadImage("assets/toy.png");
+  carrotImg = loadImage("assets/carrot.png");
+
+  backgroundMusic = loadSound(""); // still need to find background music
+  quackSound = loadSound("assets/duckquack.mp3");
+  splashingSound = loadSound("assets/splash.mp3");
+
 }
 
 
@@ -31,10 +65,10 @@ function setup() {
   createCanvas(windowWidth, windowHeight);
   cols = Math.floor(width/1.5/CELL_SIZE);
   rows = Math.floor(height/CELL_SIZE);
-  grid = generateRandomGrid(cols, rows);
+  grid = generateEmptyGrid(cols, rows);
   spawnMenu();
   //add player to grid
-  grid[thePlayer.y][thePlayer.x] = PLAYER;
+  grid[thePlayer.y][thePlayer.x] = SPRITE;
 }
 
 function draw() {
@@ -49,7 +83,9 @@ function spawnMenu() {
   fill(255);
   stroke(0);
   strokeWeight(4);
-  text('MENU', width - width*0.22, 75); // reminder for me to eventually make const for values
+  text('MENU', width - width*0.22, FONT_SIZE); // reminder for me to eventually make const for values
+
+
 }
 
 
@@ -60,6 +96,10 @@ function mousePressed() {
 
   //self
   toggleCell(x ,y);
+
+  // if (mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h) {
+  //   button = !button;
+  // }
 }
 
 function toggleCell(x, y) {
@@ -74,14 +114,27 @@ function toggleCell(x, y) {
   }
 }
 
+// function checkIfGrabbed() {  
+//   if (button) {
+//     x = mouseX - w/2;
+//     y = mouseY - h/2;
+//   }
+//   image(meatImg, x, y, CELL_SIZE, CELL_SIZE);
+// }
+
+// if sprite eats
+function doesSpriteEat() {
+
+}
+
 function keyPressed() {
   if (key === "r") {
     grid = generateRandomGrid(cols, rows);
-    grid[thePlayer.y][thePlayer.x] = PLAYER;
+    grid[thePlayer.y][thePlayer.x] = SPRITE;
   }
   else if (key === "e") {
     grid = generateEmptyGrid(cols, rows);
-    grid[thePlayer.y][thePlayer.x] = PLAYER;
+    grid[thePlayer.y][thePlayer.x] = SPRITE;
   }
   else if (key === "w") {
     movePlayer(thePlayer.x, thePlayer.y - 1);
@@ -108,7 +161,7 @@ function movePlayer(x, y) {
     thePlayer.y = y;
   
     //put player on grid
-    grid[thePlayer.y][thePlayer.x] = PLAYER;
+    grid[thePlayer.y][thePlayer.x] = SPRITE;
   
     //reset old spot to be open tile
     grid[oldY][oldX] = OPEN_TILE;
@@ -126,11 +179,11 @@ function displayGrid() {
         // fill("black");
         image(rockImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
       }
-      else if (grid[y][x] === PLAYER) {
+      else if (grid[y][x] === SPRITE) {
         image(grassImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
         // fill("red");
         // noStroke();
-        image(spriteImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+        image(spriteImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE * spriteSize, CELL_SIZE * spriteSize);
       }
     }
   }
