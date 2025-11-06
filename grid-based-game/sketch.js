@@ -5,6 +5,8 @@
 // Extra for Experts:
 // - 
 
+// REPLACE PLAYER WITH SPRITE
+
 const CELL_SIZE = 100;
 const FONT_SIZE = 75;
 const OPEN_TILE = 0;
@@ -34,6 +36,7 @@ let meatImg;
 let waterImg;
 let toyImg;
 let carrotImg;
+let potionImg;
 
 // sounds
 let backgroundMusic;
@@ -53,8 +56,9 @@ function preload() {
   waterImg = loadImage("assets/water.png");
   toyImg = loadImage("assets/toy.png");
   carrotImg = loadImage("assets/carrot.png");
+  potionImg = loadImage("assets/potion.png");
 
-  backgroundMusic = loadSound(""); // still need to find background music
+  // backgroundMusic = loadSound(""); // still need to find background music
   quackSound = loadSound("assets/duckquack.mp3");
   splashingSound = loadSound("assets/splash.mp3");
 
@@ -69,6 +73,7 @@ function setup() {
   spawnMenu();
   //add player to grid
   grid[thePlayer.y][thePlayer.x] = SPRITE;
+  grid[5][6] = MEAT;
 }
 
 function draw() {
@@ -85,6 +90,7 @@ function spawnMenu() {
   strokeWeight(4);
   text('MENU', width - width*0.22, FONT_SIZE); // reminder for me to eventually make const for values
 
+  image(meatImg, width-width*0.22, height/2, CELL_SIZE*0.5, CELL_SIZE*0.5);
 
 }
 
@@ -124,7 +130,6 @@ function toggleCell(x, y) {
 
 // if sprite eats
 function doesSpriteEat() {
-
 }
 
 function keyPressed() {
@@ -168,15 +173,15 @@ function movePlayer(x, y) {
   }
 }
 
+
+
 function displayGrid() {
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
       if (grid[y][x] === OPEN_TILE) {
-        // fill("white");
         image(grassImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
       }
       else if (grid[y][x] === IMPASSIBLE) {
-        // fill("black");
         image(rockImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
       }
       else if (grid[y][x] === SPRITE) {
@@ -184,6 +189,18 @@ function displayGrid() {
         // fill("red");
         // noStroke();
         image(spriteImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE * spriteSize, CELL_SIZE * spriteSize);
+      }
+      else if (grid[y][x] === MEAT) {
+        image(meatImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
+      }
+      else if (grid[y][x] === WATER) {
+        image(waterImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
+      }
+      else if (grid[y][x] === POTION) {
+        image(potionImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
+      }
+      else if (grid[y][x] === carrotImg) {
+        image(carrotImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
       }
     }
   }
