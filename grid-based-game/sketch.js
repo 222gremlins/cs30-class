@@ -29,14 +29,16 @@ let thePlayer = {
 let spriteSize = 0.4;
 
 // imgs
-let grassImg;
-let rockImg;
-let spriteImg;
-let meatImg;
-let waterImg;
-let toyImg;
-let carrotImg;
-let potionImg;
+let menuItems = [];
+
+// let grassImg;
+// let rockImg;
+// let spriteImg;
+// let meatImg;
+// let waterImg;
+// let toyImg;
+// let carrotImg;
+// let potionImg;
 
 // sounds
 let backgroundMusic;
@@ -47,6 +49,10 @@ let quackSound;
 let button = false;
 let w = 100;
 let h = 75;
+
+let draggingItem;
+let dragType;
+let isDragging = false;
 
 function preload() {
   grassImg = loadImage("assets/clover.png");
@@ -80,6 +86,14 @@ function draw() {
   background("gray");
   displayGrid();
   spawnMenu();
+}
+s
+function setMenuItems(img, type, x, y, name) {
+    menuItems = [
+    {},
+    {,
+    {}
+  ];
 }
 
 // for now this will hold all of the things I want to eventually be able to drop in.
@@ -118,6 +132,24 @@ function toggleCell(x, y) {
       grid[y][x] = OPEN_TILE;
     }
   }
+}
+
+function mouseReleased() {
+  if (isDragging && draggingItem && mouseX < width * 0.75) {
+    let x = Math.floor(mouseX / CELL_SIZE);
+    let y = Math.floor(mouseY / CELL_SIZE);
+
+    if (x >= 0 && x < cols && y >= 0 && y < rows) {
+      if (x === thePlayer.x && y === thePlayer.y) {
+        interact(dragType);
+      } else if (grid[y][x] === OPEN_TILE) {
+        grid[y][x] = dragType;
+      }
+    }
+  }
+  // draggingItem;
+  // dragType;
+  // isDragging = false;
 }
 
 // function checkIfGrabbed() {  
