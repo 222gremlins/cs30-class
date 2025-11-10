@@ -50,8 +50,8 @@ let button = false;
 let w = 100;
 let h = 75;
 
-let draggingItem;
-let dragType;
+// let draggingItem = false;
+let itemBeingDragged;
 let isDragging = false;
 
 function preload() {
@@ -76,25 +76,18 @@ function setup() {
   cols = Math.floor(width/1.5/CELL_SIZE);
   rows = Math.floor(height/CELL_SIZE);
   grid = generateEmptyGrid(cols, rows);
-  spawnMenu();
   //add player to grid
   grid[thePlayer.y][thePlayer.x] = SPRITE;
-  grid[5][6] = MEAT;
 }
 
 function draw() {
   background("gray");
   displayGrid();
   spawnMenu();
+  doesSpriteEat();
+  checkIfGrabbed();
 }
-s
-function setMenuItems(img, type, x, y, name) {
-    menuItems = [
-    {},
-    {,
-    {}
-  ];
-}
+
 
 // for now this will hold all of the things I want to eventually be able to drop in.
 function spawnMenu() {
@@ -105,64 +98,57 @@ function spawnMenu() {
   text('MENU', width - width*0.22, FONT_SIZE); // reminder for me to eventually make const for values
 
   image(meatImg, width-width*0.22, height/2, CELL_SIZE*0.5, CELL_SIZE*0.5);
-
+  
 }
 
+// if sprite eats, replace item with sprite & play sound 
 
+function doesSpriteEat() {
+  let tile = grid[thePlayer.y][thePlayer.x];
+  if (tile === MEAT || tile === WATER || tile === TOY || tile === POTION || tile === CARROT) {
+    grid[thePlayer.y][thePlayer.x] = SPRITE;
+    if (tile === WATER) splashingSound.play();
+    if (tile === TOY) quackSound.play();
+  }
+}
 
 function mousePressed() {
-  let x = Math.floor(mouseX/CELL_SIZE);
-  let y = Math.floor(mouseY/CELL_SIZE);
+const menuX = width - width * 0.22;
+const startY = height / 3 - CELL_SIZE;
+const spacing = CELL_SIZE + 20;
 
-  //self
-  toggleCell(x ,y);
+// check if mouse is inside column
+if (mouseX > menuX && mouseX < menuX + CELL_SIZE * 0.7) {
+  // find which item was clicked
+  let item = Math.floor((mouseY - startY) / spacing);
 
-  // if (mouseX > x && mouseX < x + w && mouseY > y && mouseY < y + h) {
-  //   button = !button;
-  // }
-}
-
-function toggleCell(x, y) {
-  //make sure the cell you're toggling actually exists!
-  if (x >= 0 && x < cols && y >= 0 && y < rows) {
-    if (grid[y][x] === OPEN_TILE) {
-      grid[y][x] = IMPASSIBLE;
-    }
-    else if (grid[y][x] === IMPASSIBLE) {
-      grid[y][x] = OPEN_TILE;
-    }
+  if (item === 0) startDrag(WATER, waterImg);
+    else if (item === 1) startDrag(MEAT, meatImg);
+    else if (item === 2) startDrag(TOY, toyImg);
+  } 
+  else {
+    let x = Math.floor(mouseX / CELL_SIZE);
+    let y = Math.floor(mouseY / CELL_SIZE);
+    toggleCell(x, y);
   }
 }
 
 function mouseReleased() {
-  if (isDragging && draggingItem && mouseX < width * 0.75) {
+  if (isDragging && draggingItem) {
     let x = Math.floor(mouseX / CELL_SIZE);
     let y = Math.floor(mouseY / CELL_SIZE);
-
-    if (x >= 0 && x < cols && y >= 0 && y < rows) {
-      if (x === thePlayer.x && y === thePlayer.y) {
-        interact(dragType);
-      } else if (grid[y][x] === OPEN_TILE) {
-        grid[y][x] = dragType;
-      }
+    if (x >= 0 && x < cols && y >= 0 && y < rows && grid[y][x] === OPEN_TILE) {
+      grid[y][x] = dragType;
     }
   }
-  // draggingItem;
-  // dragType;
-  // isDragging = false;
 }
 
-// function checkIfGrabbed() {  
-//   if (button) {
-//     x = mouseX - w/2;
-//     y = mouseY - h/2;
-//   }
-//   image(meatImg, x, y, CELL_SIZE, CELL_SIZE);
-// }
-
-// if sprite eats
-function doesSpriteEat() {
+function checkIfGrabbed() {  
+  if (isDragging && draggingItemImg) {
+    image(draggingItemImg, mouseX - CELL_SIZE/2, mouseY - CELL_SIZE/2, CELL_SIZE*0.7, CELL_SIZE*0.7);
+  }
 }
+
 
 function keyPressed() {
   if (key === "r") {
@@ -205,11 +191,12 @@ function movePlayer(x, y) {
   }
 }
 
-
-
 function displayGrid() {
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
+    // so the grass doesnt disappear under other tiles
+    image(grassImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
+
       if (grid[y][x] === OPEN_TILE) {
         image(grassImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
       }
@@ -233,6 +220,9 @@ function displayGrid() {
       }
       else if (grid[y][x] === carrotImg) {
         image(carrotImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
+      }
+      else if (grid[y][x] === TOY) {
+        image(toyImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
       }
     }
   }
