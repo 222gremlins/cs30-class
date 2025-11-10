@@ -12,8 +12,6 @@ const FONT_SIZE = 75;
 const OPEN_TILE = 0;
 const IMPASSIBLE = 1;
 const POTION = 2;
-// const notsureyet = 3;
-const CARROT = 4;
 const TOY = 5;
 const WATER = 6;
 const MEAT = 7;
@@ -52,7 +50,9 @@ let h = 75;
 
 // let draggingItem = false;
 let itemBeingDragged;
+let draggedItemImage;
 let isDragging = false;
+
 
 function preload() {
   grassImg = loadImage("assets/clover.png");
@@ -91,21 +91,29 @@ function draw() {
 
 // for now this will hold all of the things I want to eventually be able to drop in.
 function spawnMenu() {
+  const menuX = width - width * 0.22;
+  const menuY = height / 3 - CELL_SIZE;
+  const spacing = CELL_SIZE + 20;
   textSize(50);
   fill(255);
   stroke(0);
   strokeWeight(4);
   text('MENU', width - width*0.22, FONT_SIZE); // reminder for me to eventually make const for values
 
-  image(meatImg, width-width*0.22, height/2, CELL_SIZE*0.5, CELL_SIZE*0.5);
-  
+  image(waterImg, menuX, menuY, CELL_SIZE * 0.5, CELL_SIZE * 0.5);
+  image(meatImg, menuX, menuY + spacing, CELL_SIZE * 0.5, CELL_SIZE * 0.5);
+  image(toyImg, menuX, menuY + spacing * 2, CELL_SIZE * 0.5, CELL_SIZE * 0.5);
 }
 
 // if sprite eats, replace item with sprite & play sound 
 
 function doesSpriteEat() {
   let tile = grid[thePlayer.y][thePlayer.x];
-  if (tile === MEAT || tile === WATER || tile === TOY || tile === POTION || tile === CARROT) {
+  if (tile === MEAT || 
+      tile === WATER ||
+      tile === TOY || 
+      tile === POTION 
+      || tile === CARROT) {
     grid[thePlayer.y][thePlayer.x] = SPRITE;
     if (tile === WATER) splashingSound.play();
     if (tile === TOY) quackSound.play();
@@ -113,24 +121,24 @@ function doesSpriteEat() {
 }
 
 function mousePressed() {
-const menuX = width - width * 0.22;
-const startY = height / 3 - CELL_SIZE;
-const spacing = CELL_SIZE + 20;
+  const menuX = width - width * 0.22;
+  const menuY = height / 3 - CELL_SIZE;
+  const spacing = CELL_SIZE + 20;
 
-// check if mouse is inside column
-if (mouseX > menuX && mouseX < menuX + CELL_SIZE * 0.7) {
-  // find which item was clicked
-  let item = Math.floor((mouseY - startY) / spacing);
+  // check if mouse is inside column
+  if (mouseX > menuX && mouseX < menuX + CELL_SIZE * 0.5) {
+    // find which item was clicked
+    let item = Math.floor((mouseY - menuY) / spacing);
 
-  if (item === 0) startDrag(WATER, waterImg);
-    else if (item === 1) startDrag(MEAT, meatImg);
-    else if (item === 2) startDrag(TOY, toyImg);
-  } 
-  else {
-    let x = Math.floor(mouseX / CELL_SIZE);
-    let y = Math.floor(mouseY / CELL_SIZE);
-    toggleCell(x, y);
-  }
+    if (item === 0) startDrag(WATER, waterImg);
+     else if (item === 1) startDrag(MEAT, meatImg);
+      else if (item === 2) startDrag(TOY, toyImg);
+    } 
+  // else {
+  //   let x = Math.floor(mouseX / CELL_SIZE);
+  //   let y = Math.floor(mouseY / CELL_SIZE);
+  //   toggleCell(x, y);
+  // }
 }
 
 function mouseReleased() {
@@ -141,25 +149,21 @@ function mouseReleased() {
       grid[y][x] = dragType;
     }
   }
+  // stop dragging so reset
+  isDragging = false;
+  draggingItemImg;
+  dragType;
 }
 
 function checkIfGrabbed() {  
   if (isDragging && draggingItemImg) {
-    image(draggingItemImg, mouseX - CELL_SIZE/2, mouseY - CELL_SIZE/2, CELL_SIZE*0.7, CELL_SIZE*0.7);
+    image(draggingItemImg, mouseX - CELL_SIZE/2, mouseY - CELL_SIZE/2, CELL_SIZE*0.5, CELL_SIZE*0.5);
   }
 }
 
 
 function keyPressed() {
-  if (key === "r") {
-    grid = generateRandomGrid(cols, rows);
-    grid[thePlayer.y][thePlayer.x] = SPRITE;
-  }
-  else if (key === "e") {
-    grid = generateEmptyGrid(cols, rows);
-    grid[thePlayer.y][thePlayer.x] = SPRITE;
-  }
-  else if (key === "w") {
+  if (key === "w") {
     movePlayer(thePlayer.x, thePlayer.y - 1);
   }
   else if (key === "s") {
@@ -226,23 +230,6 @@ function displayGrid() {
       }
     }
   }
-}
-
-function generateRandomGrid(cols, rows) {
-  let newGrid = [];
-  for (let y = 0; y < rows; y++) {
-    newGrid.push([]);
-    for (let x = 0; x < cols; x++) {
-      //pick 0 or 1 randomly
-      if (random(100) < 50) {
-        newGrid[y].push(OPEN_TILE);
-      }
-      else {
-        newGrid[y].push(IMPASSIBLE);
-      }
-    }
-  }
-  return newGrid;
 }
 
 function generateEmptyGrid(cols, rows) {
