@@ -11,7 +11,6 @@ const CELL_SIZE = 100;
 const FONT_SIZE = 75;
 const OPEN_TILE = 0;
 const IMPASSIBLE = 1;
-const POTION = 2;
 const TOY = 5;
 const WATER = 6;
 const MEAT = 7;
@@ -27,30 +26,21 @@ let thePlayer = {
 let spriteSize = 0.4;
 
 // imgs
-let menuItems = [];
-
-// let grassImg;
-// let rockImg;
-// let spriteImg;
-// let meatImg;
-// let waterImg;
-// let toyImg;
-// let carrotImg;
-// let potionImg;
+let grassImg;
+let rockImg;
+let spriteImg;
+let meatImg;
+let waterImg;
+let toyImg;
 
 // sounds
 let backgroundMusic;
 let splashingSound;
 let quackSound;
 
-// drag & drop variables
-let button = false;
-let w = 100;
-let h = 75;
-
 // let draggingItem = false;
-let itemBeingDragged;
-let draggedItemImage;
+let draggingItem = "";
+let dragType = "";
 let isDragging = false;
 
 
@@ -61,8 +51,6 @@ function preload() {
   meatImg = loadImage("assets/ribeye.png");
   waterImg = loadImage("assets/water.png");
   toyImg = loadImage("assets/toy.png");
-  carrotImg = loadImage("assets/carrot.png");
-  potionImg = loadImage("assets/potion.png");
 
   // backgroundMusic = loadSound(""); // still need to find background music
   quackSound = loadSound("assets/duckquack.mp3");
@@ -106,18 +94,21 @@ function spawnMenu() {
 }
 
 // if sprite eats, replace item with sprite & play sound 
-
 function doesSpriteEat() {
   let tile = grid[thePlayer.y][thePlayer.x];
   if (tile === MEAT || 
       tile === WATER ||
-      tile === TOY || 
-      tile === POTION 
-      || tile === CARROT) {
+      tile === TOY) {
     grid[thePlayer.y][thePlayer.x] = SPRITE;
     if (tile === WATER) splashingSound.play();
     if (tile === TOY) quackSound.play();
   }
+}
+
+function startDrag(item, img){
+  dragType = item;
+  draggingItem = img;
+  isDragging = true;
 }
 
 function mousePressed() {
@@ -133,12 +124,7 @@ function mousePressed() {
     if (item === 0) startDrag(WATER, waterImg);
      else if (item === 1) startDrag(MEAT, meatImg);
       else if (item === 2) startDrag(TOY, toyImg);
-    } 
-  // else {
-  //   let x = Math.floor(mouseX / CELL_SIZE);
-  //   let y = Math.floor(mouseY / CELL_SIZE);
-  //   toggleCell(x, y);
-  // }
+  } 
 }
 
 function mouseReleased() {
@@ -151,13 +137,13 @@ function mouseReleased() {
   }
   // stop dragging so reset
   isDragging = false;
-  draggingItemImg;
-  dragType;
+  draggingItem = "";
+  dragType = "";
 }
 
 function checkIfGrabbed() {  
-  if (isDragging && draggingItemImg) {
-    image(draggingItemImg, mouseX - CELL_SIZE/2, mouseY - CELL_SIZE/2, CELL_SIZE*0.5, CELL_SIZE*0.5);
+  if (isDragging && draggingItem) {
+    image(draggingItem, mouseX - CELL_SIZE/2, mouseY - CELL_SIZE/2, CELL_SIZE*0.5, CELL_SIZE*0.5);
   }
 }
 
@@ -175,23 +161,29 @@ function keyPressed() {
   else if (key === "a") {
     movePlayer(thePlayer.x - 1, thePlayer.y);
   }
+  
 }
 
 function movePlayer(x, y) {
-  if (x >= 0 && x < cols && y >= 0 && y < rows && grid[y][x] === OPEN_TILE) {
-    //previous position
-    let oldX = thePlayer.x;
-    let oldY = thePlayer.y;
-  
-    //moving the player location
-    thePlayer.x = x;
-    thePlayer.y = y;
-  
-    //put player on grid
-    grid[thePlayer.y][thePlayer.x] = SPRITE;
-  
-    //reset old spot to be open tile
-    grid[oldY][oldX] = OPEN_TILE;
+  if (x >= 0 && x < cols && y >= 0 && y < rows) {
+    if (grid[y][x] === OPEN_TILE ||
+        grid[y][x] === MEAT ||
+        grid[y][x] === WATER ||
+        grid[y][x] === TOY){
+        //previous position
+        let oldX = thePlayer.x;
+        let oldY = thePlayer.y;
+        
+        //moving the player location
+        thePlayer.x = x;
+        thePlayer.y = y;
+        
+        //put player on grid
+        grid[thePlayer.y][thePlayer.x] = SPRITE;
+        
+        //reset old spot to be open tile
+        grid[oldY][oldX] = OPEN_TILE;
+    }
   }
 }
 
@@ -200,34 +192,17 @@ function displayGrid() {
     for (let x = 0; x < cols; x++) {
     // so the grass doesnt disappear under other tiles
     image(grassImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
-
-      if (grid[y][x] === OPEN_TILE) {
-        image(grassImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
-      }
-      else if (grid[y][x] === IMPASSIBLE) {
-        image(rockImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
-      }
-      else if (grid[y][x] === SPRITE) {
-        image(grassImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
-        // fill("red");
-        // noStroke();
-        image(spriteImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE * spriteSize, CELL_SIZE * spriteSize);
-      }
-      else if (grid[y][x] === MEAT) {
-        image(meatImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
-      }
-      else if (grid[y][x] === WATER) {
-        image(waterImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
-      }
-      else if (grid[y][x] === POTION) {
-        image(potionImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
-      }
-      else if (grid[y][x] === carrotImg) {
-        image(carrotImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
-      }
-      else if (grid[y][x] === TOY) {
+      if (grid[y][x] === IMPASSIBLE)
+        image(rockImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+      if (grid[y][x] === SPRITE)
+        image(spriteImg, x * CELL_SIZE + CELL_SIZE * (0.5 - spriteSize / 2), y * CELL_SIZE + CELL_SIZE * (0.5 - spriteSize / 2), CELL_SIZE * spriteSize, CELL_SIZE * spriteSize
+        );
+      if (grid[y][x] === MEAT)
+        image(meatImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+      if (grid[y][x] === WATER)
+        image(waterImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+      if (grid[y][x] === TOY)
         image(toyImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-      }
     }
   }
 }
