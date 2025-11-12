@@ -38,8 +38,7 @@ let backgroundMusic;
 let splashingSound;
 let quackSound;
 
-// let draggingItem = false;
-let draggingItem = "";
+let draggingImg = "";
 let dragType = "";
 let isDragging = false;
 
@@ -72,7 +71,7 @@ function draw() {
   background("gray");
   displayGrid();
   spawnMenu();
-  doesSpriteEat();
+  // doesSpriteEat();
   checkIfGrabbed();
 }
 
@@ -96,18 +95,17 @@ function spawnMenu() {
 // if sprite eats, replace item with sprite & play sound 
 function doesSpriteEat() {
   let tile = grid[thePlayer.y][thePlayer.x];
+
   if (tile === MEAT || 
       tile === WATER ||
       tile === TOY) {
     grid[thePlayer.y][thePlayer.x] = SPRITE;
-    if (tile === WATER) splashingSound.play();
-    if (tile === TOY) quackSound.play();
   }
 }
 
 function startDrag(item, img){
   dragType = item;
-  draggingItem = img;
+  draggingImg = img;
   isDragging = true;
 }
 
@@ -121,14 +119,20 @@ function mousePressed() {
     // find which item was clicked
     let item = Math.floor((mouseY - menuY) / spacing);
 
-    if (item === 0) startDrag(WATER, waterImg);
-     else if (item === 1) startDrag(MEAT, meatImg);
-      else if (item === 2) startDrag(TOY, toyImg);
+    if (item === 0) {
+      startDrag(WATER, waterImg);
+    }
+    else if (item === 1) {
+      startDrag(MEAT, meatImg);
+    }   
+    else if (item === 2) {
+      startDrag(TOY, toyImg);
+    } 
   } 
 }
 
 function mouseReleased() {
-  if (isDragging && draggingItem) {
+  if (isDragging && draggingImg) {
     let x = Math.floor(mouseX / CELL_SIZE);
     let y = Math.floor(mouseY / CELL_SIZE);
     if (x >= 0 && x < cols && y >= 0 && y < rows && grid[y][x] === OPEN_TILE) {
@@ -137,13 +141,13 @@ function mouseReleased() {
   }
   // stop dragging so reset
   isDragging = false;
-  draggingItem = "";
+  draggingImg = "";
   dragType = "";
 }
 
 function checkIfGrabbed() {  
-  if (isDragging && draggingItem) {
-    image(draggingItem, mouseX - CELL_SIZE/2, mouseY - CELL_SIZE/2, CELL_SIZE*0.5, CELL_SIZE*0.5);
+  if (isDragging && draggingImg) {
+    image(draggingImg, mouseX - CELL_SIZE/2, mouseY - CELL_SIZE/2, CELL_SIZE*0.5, CELL_SIZE*0.5);
   }
 }
 
@@ -170,19 +174,19 @@ function movePlayer(x, y) {
         grid[y][x] === MEAT ||
         grid[y][x] === WATER ||
         grid[y][x] === TOY){
-        //previous position
-        let oldX = thePlayer.x;
-        let oldY = thePlayer.y;
+      //previous position
+      let oldX = thePlayer.x;
+      let oldY = thePlayer.y;
+      
+      //moving the player location
+      thePlayer.x = x;
+      thePlayer.y = y;
+
+      //put player on grid
+      grid[thePlayer.y][thePlayer.x] = SPRITE;
         
-        //moving the player location
-        thePlayer.x = x;
-        thePlayer.y = y;
-        
-        //put player on grid
-        grid[thePlayer.y][thePlayer.x] = SPRITE;
-        
-        //reset old spot to be open tile
-        grid[oldY][oldX] = OPEN_TILE;
+      //reset old spot to be open tile
+      grid[oldY][oldX] = OPEN_TILE;
     }
   }
 }
@@ -191,18 +195,22 @@ function displayGrid() {
   for (let y = 0; y < rows; y++) {
     for (let x = 0; x < cols; x++) {
     // so the grass doesnt disappear under other tiles
-    image(grassImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
-      if (grid[y][x] === IMPASSIBLE)
+      image(grassImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE);
+      if (grid[y][x] === IMPASSIBLE) {
         image(rockImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-      if (grid[y][x] === SPRITE)
-        image(spriteImg, x * CELL_SIZE + CELL_SIZE * (0.5 - spriteSize / 2), y * CELL_SIZE + CELL_SIZE * (0.5 - spriteSize / 2), CELL_SIZE * spriteSize, CELL_SIZE * spriteSize
-        );
-      if (grid[y][x] === MEAT)
+      }
+      if (grid[y][x] === SPRITE) {
+        image(spriteImg, x * CELL_SIZE + CELL_SIZE * (0.5 - spriteSize / 2), y * CELL_SIZE + CELL_SIZE * (0.5 - spriteSize / 2), CELL_SIZE * spriteSize, CELL_SIZE * spriteSize); 
+      }
+      if (grid[y][x] === MEAT){
         image(meatImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-      if (grid[y][x] === WATER)
+      }
+      if (grid[y][x] === WATER) {
         image(waterImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
-      if (grid[y][x] === TOY)
+      }
+      if (grid[y][x] === TOY){
         image(toyImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+      }
     }
   }
 }
