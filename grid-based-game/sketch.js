@@ -3,7 +3,8 @@
 // 10/30/2025
 //
 // Extra for Experts:
-// - 
+// Played around way more with sound and changed pitch, also added lerp to create a tint effect based on the needs of the sprite
+// The sprite now changes color based on how well its needs are being met
 
 // REPLACE PLAYER WITH SPRITE
 
@@ -15,6 +16,8 @@ const TOY = 5;
 const WATER = 6;
 const MEAT = 7;
 const SPRITE = 9;
+const NEEDS_MAX = 100;
+const DECAY_RATE = 0.02;
 
 let grid;
 let rows;
@@ -32,6 +35,13 @@ let spriteImg;
 let meatImg;
 let waterImg;
 let toyImg;
+
+//basic needs
+let basicNeeds = {
+  food: NEEDS_MAX,
+  water: NEEDS_MAX,
+  entertainment: NEEDS_MAX
+};
 
 // sounds
 let backgroundMusic;
@@ -71,16 +81,16 @@ function draw() {
   background("gray");
   displayGrid();
   spawnMenu();
-  // doesSpriteEat();
   checkIfGrabbed();
+  updateBasicNeeds();
+  displayBasicNeeds();
 }
-
 
 // for now this will hold all of the things I want to eventually be able to drop in.
 function spawnMenu() {
-  const menuX = width - width * 0.22;
-  const menuY = height / 3 - CELL_SIZE;
-  const spacing = CELL_SIZE + 20;
+  let menuX = width - width * 0.22;
+  let menuY = height / 3 - CELL_SIZE;
+  let spacing = CELL_SIZE + 20;
   textSize(50);
   fill(255);
   stroke(0);
@@ -93,14 +103,67 @@ function spawnMenu() {
 }
 
 // if sprite eats, replace item with sprite & play sound 
-function doesSpriteEat() {
-  let tile = grid[thePlayer.y][thePlayer.x];
+function doesSpriteEat(tile) {
+if (tile === MEAT || tile === WATER || tile === TOY) {
+    
 
-  if (tile === MEAT || 
-      tile === WATER ||
-      tile === TOY) {
+    if (tile === MEAT) {
+      basicNeeds.food = min(NEEDS_MAX, basicNeeds.food + 20);
+    }
+    else if (tile === WATER) {
+      basicNeeds.water = min(NEEDS_MAX, basicNeeds.water + 20);
+      splashingSound.play();
+    }
+    else if (tile === TOY) {
+      basicNeeds.entertainment = min(NEEDS_MAX, basicNeeds.entertainment + 20);
+      quackSound.play();  
+      quackSound.rate(random(0.9, 1.2)); //Randomizes the sound pitch slightly
+      setTimeout(() => quackSound.stop(), 3000); 
+    }
+
     grid[thePlayer.y][thePlayer.x] = SPRITE;
   }
+}
+
+function displayBasicNeeds() {
+  // Draw counter thingies below menu
+  let startX = width - width * 0.37;
+  let startY = (height / 3 - CELL_SIZE) + (CELL_SIZE + 20) * 3 + 40;
+
+  textSize(20);
+  noStroke();
+  fill(255);
+  text("Basic Needs", startX, startY - 20);
+
+  drawBasicNeedCounter(startX, startY, basicNeeds.food, "Hunger", color(255, 100, 100));
+  drawBasicNeedCounter(startX, startY + 30, basicNeeds.water, "Hydration", color(100, 150, 255));
+  drawBasicNeedCounter(startX, startY + 60, basicNeeds.entertainment, "Entertainment", color(255, 200, 0));
+}
+
+function drawBasicNeedCounter(x, y, value, label, c) {
+  fill(100);
+  rect(x, y, 200, 20);
+  fill(c);
+  //map() takes a number from one range and turns it into a number in another range so here it takes the value from 0-100 and maps it to 0-200 for the width of the rect
+  rect(x, y, map(value, 0, NEEDS_MAX, 0, 200), 20);
+  fill(255);
+  textSize(16);
+  text(label, x + 210, y + 15);
+}
+
+function updateBasicNeeds() {
+  // slowly decay need meter over time
+  basicNeeds.food = max(0, basicNeeds.food - DECAY_RATE);
+  basicNeeds.water = max(0, basicNeeds.water - DECAY_RATE);
+  basicNeeds.entertainment = max(0, basicNeeds.entertainment - DECAY_RATE);
+}
+
+function getSpriteTint(happiness) {
+  // Calculate average of the needs beign met
+  let avgNeeds = (basicNeeds.food + basicNeeds.water + basicNeeds.entertainment) / 3;
+  let tintLevel = lerp(0, 255, avgNeeds / 100);
+
+  return tintLevel;
 }
 
 function startDrag(item, img){
@@ -110,9 +173,9 @@ function startDrag(item, img){
 }
 
 function mousePressed() {
-  const menuX = width - width * 0.22;
-  const menuY = height / 3 - CELL_SIZE;
-  const spacing = CELL_SIZE + 20;
+  let menuX = width - width * 0.22;
+  let menuY = height / 3 - CELL_SIZE;
+  let spacing = CELL_SIZE + 20;
 
   // check if mouse is inside column
   if (mouseX > menuX && mouseX < menuX + CELL_SIZE * 0.5) {
@@ -170,10 +233,12 @@ function keyPressed() {
 
 function movePlayer(x, y) {
   if (x >= 0 && x < cols && y >= 0 && y < rows) {
-    if (grid[y][x] === OPEN_TILE ||
-        grid[y][x] === MEAT ||
-        grid[y][x] === WATER ||
-        grid[y][x] === TOY){
+    let newTile = grid[y][x]; 
+    
+    if (newTile === OPEN_TILE ||
+        newTile === MEAT ||
+        newTile === WATER ||
+        newTile === TOY){
       //previous position
       let oldX = thePlayer.x;
       let oldY = thePlayer.y;
@@ -187,6 +252,7 @@ function movePlayer(x, y) {
         
       //reset old spot to be open tile
       grid[oldY][oldX] = OPEN_TILE;
+      doesSpriteEat(newTile);
     }
   }
 }
@@ -200,7 +266,9 @@ function displayGrid() {
         image(rockImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
       }
       if (grid[y][x] === SPRITE) {
+        tint(getSpriteTint(basicNeeds));
         image(spriteImg, x * CELL_SIZE + CELL_SIZE * (0.5 - spriteSize / 2), y * CELL_SIZE + CELL_SIZE * (0.5 - spriteSize / 2), CELL_SIZE * spriteSize, CELL_SIZE * spriteSize); 
+        noTint();
       }
       if (grid[y][x] === MEAT){
         image(meatImg, x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
