@@ -104,7 +104,7 @@ function spawnMenu() {
 
 // if sprite eats, replace item with sprite & play sound 
 function doesSpriteEat(tile) {
-if (tile === MEAT || tile === WATER || tile === TOY) {
+  if (tile === MEAT || tile === WATER || tile === TOY) {
     
 
     if (tile === MEAT) {
