@@ -128,7 +128,7 @@ function doesSpriteEat(tile) {
 function displayBasicNeeds() {
   // Draw counter thingies below menu
   let startX = width - width * 0.37;
-  let startY = (height / 3 - CELL_SIZE) + (CELL_SIZE + 20) * 3 + 40;
+  let startY = height / 3 - CELL_SIZE + (CELL_SIZE + 20) * 3 + 40;
 
   textSize(20);
   noStroke();
