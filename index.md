@@ -16,6 +16,7 @@
 - [Fireworks OOP](fireworks)
 - [OOP Inheritance](oop-inheritance)
 - [Shape Inheritance](shape-inheritance)
+- [Sierpinski Triangle](sierpinski-triangle)
 
 ## Assignments
 - [Interactive Scene](interactive-scene)
